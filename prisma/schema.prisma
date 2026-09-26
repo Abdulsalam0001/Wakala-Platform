@@ -7,10 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole { CUSTOMER ADMIN OPERATIONS }
-enum UserStatus { PENDING ACTIVE SUSPENDED CLOSED }
-enum LedgerDirection { DEBIT CREDIT }
-enum TransferStatus { DRAFT PENDING PROCESSING COMPLETED FAILED REVERSED }
+enum UserRole {\n  CUSTOMER\n  ADMIN\n  OPERATIONS\n}
+enum UserStatus {\n  PENDING\n  ACTIVE\n  SUSPENDED\n  CLOSED\n}
+enum LedgerDirection {\n  DEBIT\n  CREDIT\n}
+enum TransferStatus {\n  DRAFT\n  PENDING\n  PROCESSING\n  COMPLETED\n  FAILED\n  REVERSED\n}
 
 model User {
   id           String     @id @default(cuid())
