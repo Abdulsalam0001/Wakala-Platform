@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "node:path";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -44,12 +45,36 @@ app.get("/health/ready", async (_req, res) => {
   }
 });
 
-app.get("/", (_req, res) => {
+app.get("/api", (_req, res) => {
   res.json({
     name: "Wakala Platform API",
     status: "prototype",
     health: "/health",
     readiness: "/health/ready",
+  });
+});
+
+const webDist = path.resolve(process.cwd(), "web", "dist");
+app.use(express.static(webDist));
+
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(webDist, "index.html"), (error) => {
+    if (error && !res.headersSent) {
+      res.status(404).json({ error: "Web application is not built." });
+    }
+  });
+});
+
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api/") || req.path.startsWith("/health")) {
+    next();
+    return;
+  }
+
+  res.sendFile(path.join(webDist, "index.html"), (error) => {
+    if (error && !res.headersSent) {
+      next(error);
+    }
   });
 });
 
