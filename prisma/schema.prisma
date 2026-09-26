@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole { CUSTOMER ADMIN OPERATIONS }
+enum UserStatus { PENDING ACTIVE SUSPENDED CLOSED }
+enum LedgerDirection { DEBIT CREDIT }
+enum TransferStatus { DRAFT PENDING PROCESSING COMPLETED FAILED REVERSED }
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  role         UserRole   @default(CUSTOMER)
+  status       UserStatus @default(PENDING)
+  wallets      Wallet[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Wallet {
+  id        String        @id @default(cuid())
+  userId    String
+  currency  String        @db.VarChar(3)
+  label     String?
+  user      User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  entries   LedgerEntry[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  @@unique([userId, currency])
+  @@index([currency])
+}
+
+model LedgerEntry {
+  id             String          @id @default(cuid())
+  walletId       String
+  transactionRef String
+  direction      LedgerDirection
+  amountMinor    BigInt
+  currency       String          @db.VarChar(3)
+  description    String?
+  metadata       Json?
+  wallet         Wallet          @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  createdAt      DateTime        @default(now())
+  @@index([walletId, createdAt])
+  @@index([transactionRef])
+}
+
+model Transfer {
+  id                String         @id @default(cuid())
+  userId            String
+  idempotencyKey    String         @unique
+  sourceWalletId    String
+  destinationWallet String?
+  amountMinor       BigInt
+  currency          String         @db.VarChar(3)
+  status            TransferStatus @default(DRAFT)
+  provider          String?
+  providerReference String?
+  failureReason     String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+model ProviderEvent {
+  id              String   @id @default(cuid())
+  provider        String
+  externalEventId String
+  eventType       String
+  payload         Json
+  processedAt     DateTime?
+  receivedAt      DateTime @default(now())
+  @@unique([provider, externalEventId])
+  @@index([processedAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  @@index([actorId, createdAt])
+}
