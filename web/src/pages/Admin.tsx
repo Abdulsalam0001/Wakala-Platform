@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Activity, ArrowRight, LogOut, RefreshCw, ShieldCheck, Users, WalletCards } from "lucide-react";
 import { Button, Card, Input } from "../components";
 
@@ -33,4 +33,4 @@ export function Admin(){
   {showCreate&&<div className="fixed inset-0 z-50 grid place-items-center bg-wk-ink/50 p-4" onMouseDown={e=>e.target===e.currentTarget&&setShowCreate(false)}><Card className="w-full max-w-lg"><div className="flex items-center justify-between"><div><p className="wk-eyebrow">Customer onboarding</p><h2 className="mt-1 text-2xl font-semibold">Create a user</h2></div><button className="rounded-xl px-3 py-2 text-black/40 hover:bg-black/5" onClick={()=>setShowCreate(false)}>✕</button></div><form className="mt-6 space-y-4" onSubmit={createUser}><Input label="Full name" value={name} onChange={e=>setName(e.target.value)} required/><Input label="Email" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/><Input label="Phone" value={phone} onChange={e=>setPhone(e.target.value)}/><Input label="Temporary password" type="password" value={password} onChange={e=>setPassword(e.target.value)} minLength={12} required/><Button type="submit" size="lg" className="w-full" rightIcon={<ArrowRight size={17}/>}>Create customer</Button></form></Card></div>}
  </div>
 }
-function Stat({icon,label,value,note}:{icon:React.ReactNode;label:string;value:any;note:string}){return <Card className="p-5"><div className="flex items-center justify-between"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-wk-teal/10 text-wk-teal">{icon}</span><span className="text-[10px] font-bold uppercase tracking-wider text-black/30">{label}</span></div><p className="mt-6 text-3xl font-semibold">{value}</p><p className="mt-1 text-xs text-black/40">{note}</p></Card>}
+function Stat({icon,label,value,note}:{icon:ReactNode;label:string;value:any;note:string}){return <Card className="p-5"><div className="flex items-center justify-between"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-wk-teal/10 text-wk-teal">{icon}</span><span className="text-[10px] font-bold uppercase tracking-wider text-black/30">{label}</span></div><p className="mt-6 text-3xl font-semibold">{value}</p><p className="mt-1 text-xs text-black/40">{note}</p></Card>}
