@@ -7,10 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {\n  CUSTOMER\n  ADMIN\n  OPERATIONS\n}
-enum UserStatus {\n  PENDING\n  ACTIVE\n  SUSPENDED\n  CLOSED\n}
-enum LedgerDirection {\n  DEBIT\n  CREDIT\n}
-enum TransferStatus {\n  DRAFT\n  PENDING\n  PROCESSING\n  COMPLETED\n  FAILED\n  REVERSED\n}
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  OPERATIONS
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum LedgerDirection {
+  DEBIT
+  CREDIT
+}
+
+enum TransferStatus {
+  DRAFT
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REVERSED
+}
 
 model User {
   id           String     @id @default(cuid())
@@ -34,6 +56,7 @@ model Wallet {
   entries   LedgerEntry[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+
   @@unique([userId, currency])
   @@index([currency])
 }
@@ -49,6 +72,7 @@ model LedgerEntry {
   metadata       Json?
   wallet         Wallet          @relation(fields: [walletId], references: [id], onDelete: Restrict)
   createdAt      DateTime        @default(now())
+
   @@index([walletId, createdAt])
   @@index([transactionRef])
 }
@@ -67,6 +91,7 @@ model Transfer {
   failureReason     String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
+
   @@index([userId, createdAt])
   @@index([status, createdAt])
 }
@@ -79,6 +104,7 @@ model ProviderEvent {
   payload         Json
   processedAt     DateTime?
   receivedAt      DateTime @default(now())
+
   @@unique([provider, externalEventId])
   @@index([processedAt])
 }
@@ -91,5 +117,6 @@ model AuditLog {
   targetId   String?
   metadata   Json?
   createdAt  DateTime @default(now())
+
   @@index([actorId, createdAt])
 }
