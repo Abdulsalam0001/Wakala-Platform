@@ -1,0 +1,9 @@
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { Loader2 } from "lucide-react";
+import { cn } from "../../lib/cn";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "success";
+export type ButtonSize = "sm" | "md" | "lg" | "xl";
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> { variant?: ButtonVariant; size?: ButtonSize; loading?: boolean; leftIcon?: ReactNode; rightIcon?: ReactNode; }
+const variants: Record<ButtonVariant,string> = { primary:"bg-wk-ink text-white shadow-sm hover:-translate-y-0.5 hover:bg-wk-ink/92", secondary:"border border-black/10 bg-white text-wk-ink shadow-sm hover:bg-black/[0.03]", ghost:"text-wk-ink hover:bg-black/[0.05]", danger:"bg-red-600 text-white shadow-sm hover:bg-red-700", success:"bg-wk-teal text-white shadow-sm hover:bg-wk-teal/90" };
+const sizes: Record<ButtonSize,string> = { sm:"min-h-9 rounded-xl px-3.5 text-sm", md:"min-h-11 rounded-xl px-4 text-sm", lg:"min-h-12 rounded-2xl px-5 text-base", xl:"min-h-14 rounded-2xl px-6 text-base" };
+export const Button = forwardRef<HTMLButtonElement,ButtonProps>(function Button({className,variant="primary",size="md",loading=false,disabled,leftIcon,rightIcon,children,...props},ref){return <button ref={ref} type={props.type ?? "button"} disabled={disabled||loading} aria-busy={loading||undefined} className={cn("inline-flex items-center justify-center gap-2 font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wk-teal focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none",variants[variant],sizes[size],className)} {...props}>{loading?<Loader2 size={18} className="animate-spin" aria-hidden="true"/>:leftIcon}<span>{children}</span>{!loading&&rightIcon}</button>});
