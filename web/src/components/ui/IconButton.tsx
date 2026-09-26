@@ -1,0 +1,3 @@
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { cn } from "../../lib/cn";
+export const IconButton=forwardRef<HTMLButtonElement,ButtonHTMLAttributes<HTMLButtonElement>&{label:string;size?:"sm"|"md"|"lg";children:ReactNode}>(function IconButton({label,size="md",className,children,...props},ref){return <button ref={ref} type={props.type??"button"} aria-label={label} className={cn("inline-grid shrink-0 place-items-center rounded-xl transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wk-teal focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",size==="sm"&&"h-9 w-9",size==="md"&&"h-11 w-11",size==="lg"&&"h-12 w-12",className)} {...props}>{children}</button>});
