@@ -7,32 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  CUSTOMER
-  ADMIN
-  OPERATIONS
-}
-
-enum UserStatus {
-  PENDING
-  ACTIVE
-  SUSPENDED
-  CLOSED
-}
-
-enum LedgerDirection {
-  DEBIT
-  CREDIT
-}
-
-enum TransferStatus {
-  DRAFT
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-  REVERSED
-}
+enum UserRole { CUSTOMER ADMIN OPERATIONS }
+enum UserStatus { PENDING ACTIVE SUSPENDED CLOSED }
+enum LedgerDirection { DEBIT CREDIT }
+enum TransferStatus { DRAFT PENDING PROCESSING COMPLETED FAILED REVERSED }
 
 model User {
   id           String     @id @default(cuid())
@@ -43,8 +21,21 @@ model User {
   role         UserRole   @default(CUSTOMER)
   status       UserStatus @default(PENDING)
   wallets      Wallet[]
+  sessions     Session[]
+  auditLogs    AuditLog[] @relation("AuditActor")
   createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  updatedAt    DateTime @updatedAt
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@index([userId, expiresAt])
 }
 
 model Wallet {
@@ -56,7 +47,6 @@ model Wallet {
   entries   LedgerEntry[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-
   @@unique([userId, currency])
   @@index([currency])
 }
@@ -72,7 +62,6 @@ model LedgerEntry {
   metadata       Json?
   wallet         Wallet          @relation(fields: [walletId], references: [id], onDelete: Restrict)
   createdAt      DateTime        @default(now())
-
   @@index([walletId, createdAt])
   @@index([transactionRef])
 }
@@ -84,14 +73,13 @@ model Transfer {
   sourceWalletId    String
   destinationWallet String?
   amountMinor       BigInt
-  currency          String         @db.VarChar(3)
+  currency          String          @db.VarChar(3)
   status            TransferStatus @default(DRAFT)
   provider          String?
   providerReference String?
   failureReason     String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
-
   @@index([userId, createdAt])
   @@index([status, createdAt])
 }
@@ -104,19 +92,18 @@ model ProviderEvent {
   payload         Json
   processedAt     DateTime?
   receivedAt      DateTime @default(now())
-
   @@unique([provider, externalEventId])
   @@index([processedAt])
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   actorId    String?
   action     String
   targetType String?
   targetId   String?
   metadata   Json?
-  createdAt  DateTime @default(now())
-
+  actor      User?     @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
   @@index([actorId, createdAt])
 }
